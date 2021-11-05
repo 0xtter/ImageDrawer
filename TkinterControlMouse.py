@@ -32,6 +32,7 @@ MessageErreur.set("")
 EPrecision = DoubleVar()
 ENoir = StringVar()
 ETolerance = StringVar()
+ESmooting = StringVar()
 EPrecision.set(1)
 ENoir.set(0)
 ButtDessin = 0
@@ -61,7 +62,7 @@ def binarize_array(numpy_array, threshold, Noir):
                 numpy_array[i][j] = 255*(1-Noir)
     return numpy_array
     
-def Strategielignes(Array,precision,deg):
+def Strategielignes(Array,precision,deg,smoothing):
     L = []
     d = 0 
     Ligne = False
@@ -73,30 +74,31 @@ def Strategielignes(Array,precision,deg):
                 Ligne = True
             elif Array[x][y] == 0 and Ligne == True:
                 d += 1
-            if Ligne == True and ((Array[x][y] == 255) or (y == len(Array[0])-1)):
+            if Ligne == True and ((Array[x][y] == 255) or (y == len(Array[0])-1)) and d>smoothing:
                 L.append((pos, d))
                 d = 0
                 Ligne = False
                 
     C = []
     d2 = 0 
-    Collone = False
+    Colonne = False
     for y in range(0,len(Array[0])):
         for x in range(0,len(Array)):
-            if Array[x][y] == 0 and Collone == False:
+            if Array[x][y] == 0 and Colonne == False:
                 pos = (x,y)
                 d2 += 1
-                Collone = True
-            elif Array[x][y] == 0 and Collone == True:
+                Colonne = True
+            elif Array[x][y] == 0 and Colonne == True:
                 d2 += 1
-            if Collone == True and ((Array[x][y] == 255) or (x == len(Array)-1)):
+            if Colonne == True and ((Array[x][y] == 255) or (x == len(Array)-1)) and d2>smoothing:
                 C.append((pos, d2))
                 d2 = 0
-                Collone = False
+                Colonne = False
     #return L,1
+    print(len(L),len(C))
     if len(L) <= len(C):
         return L,1
-    elif len(C) <= len(L):
+    else:
         return C,2
     
 def Dessiner(LL,strategie,prec,ratio,Pos_Souris,Mx,My):
@@ -126,7 +128,7 @@ def LancerDessin():
     global Pos_Souris
     Final = True
     Parametres = Actualiser()
-    Dessin, strat = Strategielignes(Parametres[0],Parametres[2],Parametres[1])
+    Dessin, strat = Strategielignes(Parametres[0],Parametres[2],Parametres[1],Parametres[3])
     My, Mx = plus_petite_valeur(Dessin)
     Temps_estime = len(Dessin)*(106/523)
     fenetre.destroy()
@@ -174,6 +176,7 @@ def Actualiser():
     Tolerance = int(ETolerance.get())
     Noir = int(ENoir.get())
     Precision = EPrecision.get()
+    Smooting = ESmooting.get()
     if ELargeur.get() == "Default":
         Largeur = img.size[0]
     else:
@@ -195,7 +198,7 @@ def Actualiser():
     fenetre.one = one
     canvas.create_image((0,0), image=one, anchor='nw')
     if Final == True:
-        return Aprint, Noir, Precision, Ratio
+        return Aprint, Noir, Precision, Ratio,Smooting
 
 
 
@@ -217,6 +220,8 @@ Label(fenetre, text = "Inversion Noir:").pack(side = "top")
 Checkbutton(fenetre,onvalue = "0", offvalue = "1", variable = ENoir).pack(side = "top")
 Label(fenetre, text = "Tolérance:").pack(side = "top")
 Scale(fenetre, from_=0, to=255, orient=HORIZONTAL, length = 150, variable = ETolerance).pack(side = "top")
+Label(fenetre, text = "Smooting:").pack(side = "top")
+Scale(fenetre, from_=0, to=5, orient=HORIZONTAL, length = 150, variable = ESmooting).pack(side = "top")
 
     
 ##Buttons
