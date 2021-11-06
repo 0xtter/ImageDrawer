@@ -8,6 +8,9 @@ import math as math
 from tkinter import *
 from tkinter import filedialog
 from PIL import Image, ImageDraw, ImageTk
+from sys import exit
+
+
 Precision = 1
 Progression = 0
 
@@ -74,8 +77,8 @@ def Strategielignes(Array,precision,deg,smoothing):
                 Ligne = True
             elif Array[x][y] == 0 and Ligne == True:
                 d += 1
-            if Ligne == True and ((Array[x][y] == 255) or (y == len(Array[0])-1)) and d>smoothing:
-                L.append((pos, d))
+            if Ligne == True and ((Array[x][y] == 255) or (y == len(Array[0])-1)):
+                if d>smoothing: L.append((pos, d))
                 d = 0
                 Ligne = False
                 
@@ -90,8 +93,8 @@ def Strategielignes(Array,precision,deg,smoothing):
                 Colonne = True
             elif Array[x][y] == 0 and Colonne == True:
                 d2 += 1
-            if Colonne == True and ((Array[x][y] == 255) or (x == len(Array)-1)) and d2>smoothing:
-                C.append((pos, d2))
+            if Colonne == True and ((Array[x][y] == 255) or (x == len(Array)-1)):
+                if d2>smoothing: C.append((pos, d2))
                 d2 = 0
                 Colonne = False
     #return L,1
@@ -206,7 +209,7 @@ def Ouvrir_Fichier():
     global filename
     global oldfilename
     oldfilename = filename
-    filename = filedialog.askopenfilename(filetypes = (("PNG Files","*.png"),("All Files","*.*")))
+    filename = filedialog.askopenfilename(filetypes = (("PNG,JPG Files","*.png;*.jpg"),("All Files","*.*")))
     MessageErreur.set("")
     Actualiser()
     
